@@ -1,10 +1,13 @@
 package com.etf.pajseri.vanrednesituacije;
 
+/**
+ * Created by Djordje on 4/1/2016.
+ */
 public class EventObject {
     private String title;
     private String description;
-    private String coord_name;
-    private String phone_num;
+    private String id;
+    private String manpower;
 
     public String getTitle() {
         return title;
@@ -22,19 +25,21 @@ public class EventObject {
         this.description = description;
     }
 
-    public String getCoordName() {
-        return coord_name;
+    public String toString(){ return this.title + " " + this.description;}
+
+    public String getId() {
+        return id;
     }
 
-    public void setCoordName(String coord_name) {
-        this.coord_name = coord_name;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public String getPhoneNum() {
-        return phone_num;
+    public String getManpower() {
+        return manpower;
     }
 
-    public void setPhoneNum(String phone_num) {
-        this.phone_num = phone_num;
+    public void setManpower(String manpower) {
+        this.manpower = manpower;
     }
 }

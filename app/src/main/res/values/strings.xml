@@ -15,4 +15,9 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="pozovi">Pozovi</string>
+    <string name="osobine">osobine</string>
+    <string name="Broj">Broj</string>
+    <string name="ime">Ime</string>
+    <string name="host_adress">http://192.168.1.214:3000</string>
 </resources>

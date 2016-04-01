@@ -9,11 +9,11 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class MyRecyclerViewAdapter extends RecyclerView
-        .Adapter<MyRecyclerViewAdapter
+public class VolunteerRecycleViewAdapter extends RecyclerView
+        .Adapter<VolunteerRecycleViewAdapter
         .EventObjectHolder> {
-    private static String LOG_TAG = "MyRecyclerViewAdapter";
-    private ArrayList<EventObject> mDataset;
+    private static String LOG_TAG = "VolunteerRecycleViewAdapter";
+    private ArrayList<VolunteerObject> mDataset;
     private static MyClickListener myClickListener;
 
     public static class EventObjectHolder extends RecyclerView.ViewHolder
@@ -28,7 +28,6 @@ public class MyRecyclerViewAdapter extends RecyclerView
             super(itemView);
             title = (TextView) itemView.findViewById(R.id.textViewTitle);
             description = (TextView) itemView.findViewById(R.id.textViewDescription);
-            coord_name = (TextView) itemView.findViewById(R.id.textViewCoordName);
             phone_num = (TextView) itemView.findViewById(R.id.textViewPhoneNum);
             Log.i(LOG_TAG, "Adding Listener");
             itemView.setOnClickListener(this);
@@ -44,7 +43,7 @@ public class MyRecyclerViewAdapter extends RecyclerView
         this.myClickListener = myClickListener;
     }
 
-    public MyRecyclerViewAdapter(ArrayList<EventObject> myDataset) {
+    public VolunteerRecycleViewAdapter(ArrayList<VolunteerObject> myDataset) {
         mDataset = myDataset;
     }
 
@@ -52,7 +51,7 @@ public class MyRecyclerViewAdapter extends RecyclerView
     public EventObjectHolder onCreateViewHolder(ViewGroup parent,
                                                int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.card_view_row, parent, false);
+                .inflate(R.layout.volunteer_card_view_row, parent, false);
 
         EventObjectHolder dataObjectHolder = new EventObjectHolder(view);
         return dataObjectHolder;
@@ -62,11 +61,10 @@ public class MyRecyclerViewAdapter extends RecyclerView
     public void onBindViewHolder(EventObjectHolder holder, int position) {
         holder.title.setText(mDataset.get(position).getTitle());
         holder.description.setText(mDataset.get(position).getDescription());
-        holder.coord_name.setText(mDataset.get(position).getCoordName());
         holder.phone_num.setText(mDataset.get(position).getPhoneNum());
     }
 
-    public void addItem(EventObject dataObj, int index) {
+    public void addItem(VolunteerObject dataObj, int index) {
         mDataset.add(index, dataObj);
         notifyItemInserted(index);
     }
@@ -76,9 +74,24 @@ public class MyRecyclerViewAdapter extends RecyclerView
         notifyItemRemoved(index);
     }
 
+    public void clearData() {
+        int size = this.mDataset.size();
+        if (size > 0) {
+            for (int i = 0; i < size; i++) {
+                this.mDataset.remove(0);
+            }
+
+            this.notifyItemRangeRemoved(0, size);
+        }
+    }
+
     @Override
     public int getItemCount() {
         return mDataset.size();
+    }
+
+    public VolunteerObject getItem(int position){
+        return mDataset.get(position);
     }
 
     public interface MyClickListener {

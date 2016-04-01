@@ -22,7 +22,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
+public class EventActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
 
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
@@ -35,10 +35,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_event);
 
-
-        feedUrl = getString(R.string.host_adress) + "/list";
+        Bundle bundle = getIntent().getExtras();
+        feedUrl = getString(R.string.host_adress) + "/signups/" +  bundle.getString("id");
         System.out.println(feedUrl);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
@@ -46,28 +46,28 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new EventRecycleViewAdapter(new ArrayList<EventObject>());
+        mAdapter = new VolunteerRecycleViewAdapter(new ArrayList<VolunteerObject>());
         mRecyclerView.setAdapter(mAdapter);
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
-        new GetEventsTask().execute(feedUrl);
-
+        new GetVolunteersTask().execute(feedUrl);
     }
 
 
     @Override
     protected void onResume() {
         super.onResume();
-        ((EventRecycleViewAdapter) mAdapter).setOnItemClickListener(new EventRecycleViewAdapter
+        ((VolunteerRecycleViewAdapter) mAdapter).setOnItemClickListener(new VolunteerRecycleViewAdapter
                 .MyClickListener() {
             @Override
             public void onItemClick(int position, View v) {
                 Log.i(LOG_TAG, " Clicked on Item " + position);
-                Intent eventIntent = new Intent(MainActivity.this, EventActivity.class);
+
+                Intent volunteerIntent = new Intent(EventActivity.this, VolunteerActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("id", ((EventRecycleViewAdapter)mAdapter).getItem(position).getId());
-                eventIntent.putExtras(bundle);
-                startActivity(eventIntent);
+                bundle.putSerializable("volunteer", ((VolunteerRecycleViewAdapter)mAdapter).getItem(position));
+                volunteerIntent.putExtras(bundle);
+                startActivity(volunteerIntent);
             }
         });
     }
@@ -76,14 +76,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void onRefresh() {
         System.out.println("onRefresh is called");
 
-        new GetEventsTask().execute(feedUrl);
+        new GetVolunteersTask().execute(feedUrl);
     }
 
-    private void updateList(ArrayList<EventObject> results){
+    private void updateList(ArrayList<VolunteerObject> results){
 
-        ((EventRecycleViewAdapter)mAdapter).clearData();
+        ((VolunteerRecycleViewAdapter)mAdapter).clearData();
         for (int i = 0; i < results.size(); i++){
-            ((EventRecycleViewAdapter)mAdapter).addItem(results.get(i), i);
+            ((VolunteerRecycleViewAdapter)mAdapter).addItem(results.get(i), i);
         }
         mAdapter.notifyDataSetChanged();
 
@@ -95,53 +95,54 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
 
-    private class GetEventsTask extends AsyncTask<String, Void, ArrayList<EventObject>> {
+    private class GetVolunteersTask extends AsyncTask<String, Void, ArrayList<VolunteerObject>> {
 
         @Override
         protected void onProgressUpdate(Void... values) {
         }
 
         @Override
-        protected void onPostExecute(ArrayList<EventObject> result) {
-            System.out.println("on post execute: ");
-            for(EventObject item : result)
-                System.out.println(item);
-
+        protected void onPostExecute(ArrayList<VolunteerObject> result) {
+            System.out.println("on post execute: " + result);
             updateList(result);
         }
 
         @Override
-        protected ArrayList<EventObject> doInBackground(String... params) {
+        protected ArrayList<VolunteerObject> doInBackground(String... params) {
             //android.os.Debug.waitForDebugger();
             System.out.println("doInBackground is called");
 
             // getting JSON string from URL
             JSONArray json = null;
             try {
-                json = new JSONArray(getJSONFromUrl(params[0]));
+                String tmp = getJSONFromUrl(params[0]);
+                if(tmp.isEmpty())
+                    json = new JSONArray();
+                else
+                    json = new JSONArray(getJSONFromUrl(params[0]));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
             //parsing json data
-            ArrayList<EventObject> results = parseJson(json);
+            ArrayList<VolunteerObject> results = parseJson(json);
             return results;
         }
 
     }
 
-    public static ArrayList<EventObject> parseJson(JSONArray json){
-        ArrayList<EventObject> results = new ArrayList<>();
+    public static ArrayList<VolunteerObject> parseJson(JSONArray json){
+        ArrayList<VolunteerObject> results = new ArrayList<>();
 
         for(int i=0;i<json.length();i++){
             try {
                 JSONObject item = json.getJSONObject(i);
 
-                EventObject event = new EventObject();
-                event.setTitle(item.getString("title"));
-                event.setDescription(item.getString("note"));
-                event.setId(item.getString("id"));
-                event.setManpower(item.getString("available_manpower"));
+                VolunteerObject event = new VolunteerObject();
+                event.setTitle(item.getString("first_name") + " " + item.getString("last_name"));
+                event.setCoordName("NO COORD NAME!!!");
+                event.setDescription(item.getString("JMBG"));
+                event.setPhoneNum(item.getString("phone"));
 
                 results.add(event);
 
